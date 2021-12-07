@@ -1,0 +1,21 @@
+
+Package tool (cli folder):
+dotnet pack
+
+install tool:
+dotnet tool install --global --add-source ./nupkg DevTools.Application.Cli
+
+uninstall tool:
+dotnet tool uninstall devtools.application.cli  -g
+
+update tool:
+dotnet tool update --global --add-source ./nupkg DevTools.Application.Cli
+
+
+
+install tool, dev version
+--------------------------
+dotnet tool install --global --add-source ./nupkg DevTools.Application.Cli --version 0.0.0-dev
+
+update tool, dev version
+dotnet tool update --global --add-source ./nupkg DevTools.Application.Cli --version 0.0.0-dev
