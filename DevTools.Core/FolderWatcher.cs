@@ -25,7 +25,7 @@ public class FolderWatcher : IDisposable
         }
         
         Console.WriteLine("watcher started");
-        _watcher = new FileSystemWatcher(@"C:\Users\jay\projects\.dev-nuget", _fileNamePattern);
+        _watcher = new FileSystemWatcher(_folder, _fileNamePattern);
         _watcher.Created += (s, e) =>
         {
             _action();
