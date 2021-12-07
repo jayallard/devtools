@@ -18,7 +18,7 @@ public static class SetToLatestLocalCommandHandler
             }
 
             var localNugetPackages = NugetUtility
-                .GetNugetPackages(command.NugetSourceName)
+                .GetPackagesFromSource(command.NugetSourceName)
                 .SelectMostRecent(includePrerelease: command.IncludePreRelease, includeRelease: command.IncludeRelease)
                 .ToDictionary(p => p.PackageName);
 

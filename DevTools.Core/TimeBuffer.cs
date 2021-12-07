@@ -5,12 +5,10 @@ namespace DevTools.Core;
 public class TimeBuffer
 {
     // TODO: see about an rx solution to replace this
-    
+
     private readonly TimeSpan _idleTime;
     private readonly Action _action;
-    
-    private DateTime _lastActivity = DateTime.Now;
-    private int _activityCount = 0;
+
     private readonly object _sync = new();
     private bool _started;
 
@@ -18,19 +16,20 @@ public class TimeBuffer
     /// Returns the number of notifications that has occurred since the last time the
     /// action was invoked.
     /// </summary>
-    public long NotificationCountSinceLastExecute => _activityCount;
+    public long NotificationCountSinceLastExecute { get; private set; }
+
 
     /// <summary>
     /// Gets the last time the action method was invoked.
     /// </summary>
     public DateTime LastInvoke { get; private set; }
-    
+
     /// <summary>
     /// Gets the last time the NotifyActivity method was executed.
     /// </summary>
     public DateTime LastNotification { get; private set; }
-    
-    
+
+
     /// <summary>
     /// Initializes a new instance of the TimeBuffer class.
     /// </summary>
@@ -41,7 +40,7 @@ public class TimeBuffer
         _idleTime = idleTime;
         _action = action;
     }
-    
+
     /// <summary>
     /// Executes the action method when some time has elapsed since the last activity.
     /// IE: it has been 5 seconds since any activity occurred, so do something.
@@ -52,43 +51,46 @@ public class TimeBuffer
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public void Run( CancellationToken cancellationToken)
+    public void Run(CancellationToken cancellationToken)
     {
         lock (_sync)
         {
             if (_started) throw new InvalidOperationException("The buffer is already running");
             _started = true;
         }
-        
+
         Task.Run(ReallyRun, cancellationToken);
-        async Task ReallyRun() {
-            
+
+        async Task ReallyRun()
+        {
             // every 500 seconds, check the state of things.
             using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(500));
             while (await timer.WaitForNextTickAsync(cancellationToken))
             {
                 lock (_sync)
                 {
-                    if (_activityCount == 0)
+                    if (NotificationCountSinceLastExecute == 0)
                     {
                         // nothing to do
                         continue;
                     }
-                    
+
                     // if x time hasn't passed since the last activity,
                     // then wait longer.
-                    var diff = DateTime.Now.Subtract(_lastActivity);
+                    var diff = DateTime.Now.Subtract(LastNotification);
                     if (diff <= _idleTime) continue;
-                    
-                    Console.WriteLine("No activity for at least " + _idleTime.TotalMilliseconds + "ms, so firing. ActivityCount=" + _activityCount);
+
+                    Console.WriteLine("No activity for at least " + _idleTime.TotalMilliseconds +
+                                      "ms, so firing. ActivityCount=" + NotificationCountSinceLastExecute);
                     _action();
+                    LastInvoke = DateTime.Now;
                     Console.WriteLine("TimeBuffer: Complete");
-                    _activityCount = 0;
+                    NotificationCountSinceLastExecute = 0;
                 }
             }
         }
     }
-    
+
     /// <summary>
     /// Indicate that activity has occurred.
     /// The action won't invoke until idleTime has elapsed since the last time
@@ -98,13 +100,14 @@ public class TimeBuffer
     {
         lock (_sync)
         {
-            if (_activityCount == 0)
+            if (NotificationCountSinceLastExecute == 0)
             {
-                Console.WriteLine("TimeBuffer: Changes started. The action will be invoked " + _idleTime.TotalMilliseconds + "ms after the changes complete.");
+                Console.WriteLine("TimeBuffer: Changes started. The action will be invoked " +
+                                  _idleTime.TotalMilliseconds + "ms after the changes complete.");
             }
-            
-            _activityCount++;
-            _lastActivity = DateTime.Now;
+
+            NotificationCountSinceLastExecute++;
+            LastNotification = DateTime.Now;
         }
     }
 }

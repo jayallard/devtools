@@ -5,7 +5,7 @@ namespace DevTools.Core;
 
 public static class NugetUtility
 {
-    public static IEnumerable<NugetPackage> GetNugetPackages(string nugetSourceName)
+    public static IEnumerable<NugetPackage> GetPackagesFromSource(string nugetSourceName)
     {
         var source = GetSource(nugetSourceName) ??
                      throw new ArgumentException("Nuget Source doesn't exist: " + nugetSourceName);
@@ -54,7 +54,7 @@ public static class NugetUtility
         }
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
-        || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
             var folder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             return Path.Combine(folder, ".nuget", "NuGet", "NuGet.Config");
