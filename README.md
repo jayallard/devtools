@@ -2,11 +2,32 @@
 
 This code is in active development. It is usable, but not polished. Parts are hacky.
 
+## Prerequisites
+
+- dotnet sdk >= 6.0.100
+
 ## Installation
 
 Due to the current state of this project, which is just dev/experimentation, the nuget package isn't deployed to nuget. You must manually install it.
 
+```bash
+# get the code (if necessary)
+git clone https://github.com/jayallard/devtools.git
 
+# get the latest version (if necessary)
+git pull
+cd devtools\DevTools.Application.Cli
+
+# build the tool
+dotnet pack
+
+# uninstall the tool (just incase), then install
+dotnet tool uninstall devtools.application.cli  -g
+dotnet tool install --version 0.0.0-dev --global --add-source ./nupkg DevTools.Application.Cli
+
+# test
+devtools nuget -h
+```
 
 ## Features
 
@@ -71,4 +92,14 @@ If you run the command with the `--watch` option, then the tool will monitor the
 
 - It uses only the global nuget.config. (IE: local configs in the work directory aren't used)
 
+## set-specific-version
 
+This command updates all package references, of a pattern, to a specific version.
+
+For example: if you created a bunch of packages:
+
+- MyStuff.Core-2.0.0
+- MyStuff.Infrastructure-2.0.0
+- MyStuff.Application-2.0.0
+
+In a code folder, use the command to update all package references to `MyStuff*` to version 2.0.0
