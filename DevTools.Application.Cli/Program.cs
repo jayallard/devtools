@@ -90,6 +90,8 @@ internal class Program
         Console.WriteLine("Nuget Source Name: " + nugetSource);
         PrintFolderName("Nuget Source Folder", nugetFolder);
         PrintFolderName(" Code Folder", codeFolder);
+        Console.WriteLine("Include Releases: " + includeRelease);
+        Console.WriteLine("Include Pre-Releases: " + includePreRelease);
         Console.WriteLine("Watch: " + watch);
         Console.WriteLine();
 

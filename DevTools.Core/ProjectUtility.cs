@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace DevTools.Core;
@@ -55,14 +56,18 @@ public static class ProjectUtility
             Console.WriteLine($"{projectName}: {pref.Name}\n\tFrom: {pref.Version}\n\t  To: {updatedVersion}");
             pref.VersionAttribute.SetValue(updatedVersion);
         }
-        
-        if (changeCount > 0)
-        {
-            // this results in formatting changes to the csproj.
-            // ignoring white space in a git diff should take care of it
-            File.WriteAllText(projectPath, project.ProjectXml.ToString());
-        }
 
+        if (changeCount == 0) return 0;
+        var settings = new XmlWriterSettings
+        {
+            Indent = true,
+            
+            // csproj has 4 spaces
+            IndentChars = new string(' ', 4)
+        };
+
+        using var writer = XmlWriter.Create(projectPath, settings);
+        project.ProjectXml.Save(writer);
         return changeCount;
     }
 

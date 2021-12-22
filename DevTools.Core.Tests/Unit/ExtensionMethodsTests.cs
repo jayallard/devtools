@@ -1,7 +1,9 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using FluentAssertions;
+using NuGet.Versioning;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -14,6 +16,30 @@ public class ExtensionMethodsTests
     public ExtensionMethodsTests(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
+    }
+    
+    [Fact]
+    public void X()
+    {
+        var x = new NuGetVersion(1, 2, 3, 4, new[] { "pre", "1" }, null);
+        x.IsSemVer2.Should().BeTrue();
+        x.ToFullString().Should().Be("1.2.3.4-pre.1");
+        x.IsLegacyVersion.Should().BeTrue();
+        
+        var y = new NuGetVersion(1, 2, 3, new[] { "pre", "1" }, null);
+        y.IsSemVer2.Should().BeTrue();
+        y.ToFullString().Should().Be("1.2.3-pre.1");
+        y.IsLegacyVersion.Should().BeFalse();
+
+        SemanticVersion.Parse("1.2.3.4");
+    }
+
+    [Fact]
+    public void Test()
+    {
+        var v = new NuGetVersion(1, 1, 1, new[] { "more-than-1", "is-required" }, "boo");
+        v.IsSemVer2.Should().BeTrue();
+        _testOutputHelper.WriteLine(v.ToFullString());
     }
 
     [Fact]
